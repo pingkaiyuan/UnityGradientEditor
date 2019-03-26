@@ -16,7 +16,7 @@
 			#pragma vertex vert
 			#pragma fragment frag
 			#pragma shader_feature HORIZONTAL VERTICAL
-			
+
 			#include "UnityCG.cginc"
 
 			struct appdata
@@ -32,8 +32,10 @@
 			};
 
 			uniform int _ColorKeyLength;
+			//Unity Bulid-in Grandient Tool just supports 8 color keys
 			uniform float4 _ColorKey[8];
 			uniform int _AlphaKeyLength;
+			//Unity Bulid-in Grandient Tool just supports 8 alpha keys
 			uniform float4 _AlphaKey[8];
 
 			v2f vert (appdata v)
@@ -49,78 +51,38 @@
 
 				fixed4 col;
 
-////----------------------------------Horizontal Mode--------------------------------------
-
+				//Horizontal Mode
 				#if HORIZONTAL
-				
-				int n0 = step(_ColorKey[0].w,i.uv.x);
-				int n1 = step(_ColorKey[1].w,i.uv.x);
-				int n2 = step(_ColorKey[2].w,i.uv.x);
-				int n3 = step(_ColorKey[3].w,i.uv.x);
-				int n4 = step(_ColorKey[4].w,i.uv.x);
-				int n5 = step(_ColorKey[5].w,i.uv.x);
-				int n6 = step(_ColorKey[6].w,i.uv.x);
-				int n7 = step(_ColorKey[7].w,i.uv.x);
-				int totaln = n0+n1+n2+n3+n4+n5+n6+n7-8+_ColorKeyLength;//check the position of frag uv to decide the colorkeys
-				int totalnminus1 =totaln-1;
-				float mixvalue = (i.uv.x-_ColorKey[totalnminus1].w)/(_ColorKey[totaln].w-_ColorKey[totalnminus1].w);
-
-				col.x = _ColorKey[totalnminus1].x*(1-mixvalue)+_ColorKey[totaln].x*mixvalue;
-				col.y = _ColorKey[totalnminus1].y*(1-mixvalue)+_ColorKey[totaln].y*mixvalue;
-				col.z = _ColorKey[totalnminus1].z*(1-mixvalue)+_ColorKey[totaln].z*mixvalue;
-				
-				int a0 = step(_AlphaKey[0].w,i.uv.x);
-				int a1 = step(_AlphaKey[1].w,i.uv.x);
-				int a2 = step(_AlphaKey[2].w,i.uv.x);
-				int a3 = step(_AlphaKey[3].w,i.uv.x);
-				int a4 = step(_AlphaKey[4].w,i.uv.x);
-				int a5 = step(_AlphaKey[5].w,i.uv.x);
-				int a6 = step(_AlphaKey[6].w,i.uv.x);
-				int a7 = step(_AlphaKey[7].w,i.uv.x);
-				int totala = a0+a1+a2+a3+a4+a5+a6+a7-8+_AlphaKeyLength;//check the position of frag uv to decide the alphakeys
-				int totalaminus1 =totala-1;
-				float mixvalue2 = (i.uv.x-_AlphaKey[totalaminus1].w)/(_AlphaKey[totala].w-_AlphaKey[totalaminus1].w);
-
-				col.w=_AlphaKey[totalaminus1].x*(1-mixvalue2)+_AlphaKey[totala].x*mixvalue2;
-
+				float UV = i.uv.x;
 				#endif
 
-////------------------------------------Vertical Mode---------------------------------------------------
-
+				//Vertical Mode
 				#if VERTICAL
-				
-				int n0 = step(_ColorKey[0].w,i.uv.y);
-				int n1 = step(_ColorKey[1].w,i.uv.y);
-				int n2 = step(_ColorKey[2].w,i.uv.y);
-				int n3 = step(_ColorKey[3].w,i.uv.y);
-				int n4 = step(_ColorKey[4].w,i.uv.y);
-				int n5 = step(_ColorKey[5].w,i.uv.y);
-				int n6 = step(_ColorKey[6].w,i.uv.y);
-				int n7 = step(_ColorKey[7].w,i.uv.y);
-				int totaln = n0+n1+n2+n3+n4+n5+n6+n7-8+_ColorKeyLength;//check the position of frag uv to decide the colorkeys
-				int totalnminus1 =totaln-1;
-				float mixvalue = (i.uv.y-_ColorKey[totaln-1].w)/(_ColorKey[totaln].w-_ColorKey[totaln-1].w);
-
-				col.x = _ColorKey[totalnminus1].x*(1-mixvalue)+_ColorKey[totaln].x*mixvalue;
-				col.y = _ColorKey[totalnminus1].y*(1-mixvalue)+_ColorKey[totaln].y*mixvalue;
-				col.z = _ColorKey[totalnminus1].z*(1-mixvalue)+_ColorKey[totaln].z*mixvalue;
-				
-				int a0 = step(_AlphaKey[0].w,i.uv.y);
-				int a1 = step(_AlphaKey[1].w,i.uv.y);
-				int a2 = step(_AlphaKey[2].w,i.uv.y);
-				int a3 = step(_AlphaKey[3].w,i.uv.y);
-				int a4 = step(_AlphaKey[4].w,i.uv.y);
-				int a5 = step(_AlphaKey[5].w,i.uv.y);
-				int a6 = step(_AlphaKey[6].w,i.uv.y);
-				int a7 = step(_AlphaKey[7].w,i.uv.y);
-				int totala = a0+a1+a2+a3+a4+a5+a6+a7-8+_AlphaKeyLength;//check the position of frag uv to decide the alphakeys
-				int totalaminus1 =totala-1;
-				float mixvalue2 = (i.uv.y-_AlphaKey[totalaminus1].w)/(_AlphaKey[totala].w-_AlphaKey[totalaminus1].w);
-
-				col.w=_AlphaKey[totalaminus1].x*(1-mixvalue2)+_AlphaKey[totala].x*mixvalue2;
-
+				float UV = i.uv.y;
 				#endif
-//-----------------------------------------Founction END----------------------------------------------------------------------------
+
+				//check the interval which contains uv of this frag
+				for(int n = 0; n<_ColorKeyLength;n++){
+					if(UV<=_ColorKey[n].w){
+						break;
+					}
+				}
+				//calculate the mix value by the proportion
+				float mixvalue = (UV-_ColorKey[max(n-1,0)].w)/(_ColorKey[n].w-_ColorKey[n-1].w);
+				//mix the color
+				col.xyz = _ColorKey[max(n-1,0)].xyz*(1-mixvalue)+_ColorKey[n].xyz*mixvalue;
+
+				//check the interval which contains uv of this frag
+				for(int a = 0; a<_AlphaKeyLength;a++){
+					if(UV<=_AlphaKey[a].w){
+						break;
+					}
+				}
+				//calculate the mix value by the proportion
+				float mixvalue2 = (UV-_AlphaKey[max(a-1,0)].w)/(_AlphaKey[a].w-_AlphaKey[max(a-1,0)].w);
+				//mix the alpha
+				col.w = _AlphaKey[max(a-1,0)].x*(1-mixvalue2)+_AlphaKey[a].x*mixvalue2;
+
 				return col;
 			}
 			ENDCG
