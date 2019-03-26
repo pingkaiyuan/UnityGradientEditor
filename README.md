@@ -18,4 +18,12 @@ GradientEditor组件界面及功能如下图：
 
 点击渐变条可使用渐变编辑器编辑渐变模式。
 
+![上传示例图失效](http://ar-scene-source.nosdn.127.net/7821debe-d167-4254-a5ff-48d76c4230e5.png )
+
+![上传示例图失效](http://ar-scene-source.nosdn.127.net/2fccc547-c39e-4469-9665-2f8f9fd06213.png )
+
+![上传示例图失效](http://ar-scene-source.nosdn.127.net/e5da9c15-80d3-444e-9807-fcb08b923668.png )
+
 点击渐变模式可以更改渐变方向（目前两种方式分别为Horizontal——沿UV.u方向渐变和Vertical——沿UV.v方向渐变）。
+
+![上传示例图失效](http://ar-scene-source.nosdn.127.net/66a11b48-1b06-46c8-899f-ef03f410a3e9.png)
